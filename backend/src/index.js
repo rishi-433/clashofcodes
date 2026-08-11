@@ -38,7 +38,7 @@ app.use('/ai', aiRouter);
 const InitalizeConnection = async () => {
     try {
 
-        await Promise.all([main(), redisClient.connect()]);
+        await main();
         console.log("DB Connected");
 
         server.listen(process.env.PORT, () => {
