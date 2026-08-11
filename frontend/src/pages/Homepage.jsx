@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { NavLink, Navigate } from 'react-router'; // Fixed import
 import { useDispatch, useSelector } from 'react-redux';
 import axiosClient from '../utils/axiosClient';
-import { loadRazorpayScript } from '../utils/RazorpayService';
-
 function Homepage() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -44,55 +42,7 @@ function Homepage() {
     setSolvedProblems([]); // Clear solved problems on logout
   };
 
-  const handleUpgradeHost = async () => {
-    try {
-      // Mock backend call assuming we just upgrade
-      await axiosClient.post('/user/upgrade-role', { role: 'host' }).catch(() => {});
-      dispatch(updateRole('host'));
-      alert("Successfully upgraded to Host for free!");
-    } catch (e) {
-      console.error(e);
-      alert("Failed to upgrade role");
-    }
-  };
 
-  const handleUpgradeStarhost = async () => {
-    try {
-      const res = await loadRazorpayScript();
-      if (!res) {
-        alert("Razorpay SDK failed to load. Are you online?");
-        return;
-      }
-      
-      // Mock options - in reality order ID comes from backend
-      const options = {
-        key: "rzp_test_mockkey_placeholder", // Replace with real test key
-        amount: "99900", // ₹999.00
-        currency: "INR",
-        name: "Contest Platform",
-        description: "Starhost Upgrade",
-        handler: async function (response) {
-          // Mock verification call
-          await axiosClient.post('/user/upgrade-role', { role: 'starhost' }).catch(() => {});
-          dispatch(updateRole('starhost'));
-          alert("Payment successful! You are now a Starhost!");
-        },
-        prefill: {
-          name: user?.firstName || 'User',
-          email: user?.emailId || 'user@example.com',
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
-    } catch (e) {
-      console.error(e);
-      alert("Payment initialization failed.");
-    }
-  };
 
   const filteredProblems = problems.filter(problem => {
     const difficultyMatch = filters.difficulty === 'all' || problem.difficulty === filters.difficulty;

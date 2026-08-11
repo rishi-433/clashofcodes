@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser, updateRole } from '../authSlice';
-import { loadRazorpayScript } from '../utils/RazorpayService';
 import axiosClient from '../utils/axiosClient';
 
 function Navbar() {
@@ -24,41 +23,7 @@ function Navbar() {
     }
   };
 
-  const handleUpgradeStarhost = async () => {
-    try {
-      const res = await loadRazorpayScript();
-      if (!res) {
-        alert("Razorpay SDK failed to load. Are you online?");
-        return;
-      }
-      
-      const options = {
-        key: "rzp_test_mockkey_placeholder", // Replace with real test key
-        amount: "99900", // ₹999.00
-        currency: "INR",
-        name: "Contest Platform",
-        description: "Starhost Upgrade",
-        handler: async function (response) {
-          await axiosClient.post('/user/upgrade-role', { role: 'starhost' }).catch(() => {});
-          dispatch(updateRole('starhost'));
-          alert("Payment successful! You are now a Starhost!");
-        },
-        prefill: {
-          name: user?.firstName || 'User',
-          email: user?.emailId || 'user@example.com',
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
 
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
-    } catch (e) {
-      console.error(e);
-      alert("Payment initialization failed.");
-    }
-  };
 
   return (
       <nav className="navbar bg-base-100 shadow-lg px-4 mb-4">
@@ -81,7 +46,6 @@ function Navbar() {
                 {currentRole === 'user' && (
                   <li><a onClick={handleUpgradeHost}>Become a Host (Free)</a></li>
                 )}
-                <li><a onClick={handleUpgradeStarhost} className="text-warning">Become a Starhost (Premium)</a></li>
               </ul>
             </div>
           )}
