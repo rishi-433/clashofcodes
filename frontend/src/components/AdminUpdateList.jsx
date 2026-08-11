@@ -1,0 +1,133 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { useSelector } from 'react-redux';
+import axiosClient from '../utils/axiosClient'
+
+const AdminUpdateList = () => {
+  const [problems, setProblems] = useState([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const basePath = user?.role === 'admin' ? '/admin' : '/host';
+
+  useEffect(() => {
+    fetchProblems();
+  }, []);
+
+  const fetchProblems = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axiosClient.get('/problem/getAllProblem');
+      setProblems(data);
+    } catch (err) {
+      setError('Failed to fetch problems');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = (id) => {
+    navigate(`${basePath}/update/${id}`);
+  };
+
+  const filteredProblems = problems.filter(problem => 
+    problem.title?.toLowerCase().includes(search.toLowerCase()) || 
+    problem.tags?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="alert alert-error shadow-lg my-4">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Update Problems</h1>
+        <div className="form-control">
+          <input 
+            type="text" 
+            placeholder="Search problems..." 
+            className="input input-bordered w-full max-w-xs" 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th className="w-1/12">#</th>
+              <th className="w-4/12">Title</th>
+              <th className="w-2/12">Difficulty</th>
+              <th className="w-3/12">Tags</th>
+              <th className="w-2/12">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredProblems.map((problem, index) => (
+              <tr key={problem._id}>
+                <th>{index + 1}</th>
+                <td>{problem.title}</td>
+                <td>
+                  <span className={`badge ${
+                    problem.difficulty?.toLowerCase() === 'easy' 
+                      ? 'badge-success' 
+                      : problem.difficulty?.toLowerCase() === 'medium' 
+                        ? 'badge-warning' 
+                        : 'badge-error'
+                  }`}>
+                    {problem.difficulty}
+                  </span>
+                </td>
+                <td>
+                  <span className="badge badge-outline">
+                    {problem.tags}
+                  </span>
+                </td>
+                <td>
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => handleUpdate(problem._id)}
+                      className="btn btn-sm btn-warning"
+                    >
+                      Update
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filteredProblems.length === 0 && (
+          <div className="text-center py-4 text-gray-500">
+            No problems match your search.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AdminUpdateList;
