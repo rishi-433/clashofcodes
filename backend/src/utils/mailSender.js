@@ -1,17 +1,11 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const sendOtpEmail = async (email, otp) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail', // Assuming gmail based on the email provided
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-        const mailOptions = {
-            from: `"Contest Platform" <${process.env.EMAIL_USER}>`,
+        const { data, error } = await resend.emails.send({
+            from: 'Contest Platform <onboarding@resend.dev>', // You can change this to your verified domain later
             to: email,
             subject: 'Your Registration OTP',
             html: `
@@ -27,11 +21,15 @@ const sendOtpEmail = async (email, otp) => {
                     <p style="font-size: 14px; color: #666; text-align: center;">This OTP is valid for <strong>1 minute</strong>. Do not share this code with anyone.</p>
                 </div>
             `
-        };
+        });
 
-        const info = await transporter.sendMail(mailOptions);
+        if (error) {
+            console.error('Resend API Error:', error);
+            throw new Error(error.message);
+        }
+
         console.log(`Email sent successfully to ${email}`);
-        return info;
+        return data;
     } catch (error) {
         console.error('Error sending email:', error);
         throw error;

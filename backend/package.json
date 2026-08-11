@@ -27,6 +27,7 @@
     "mongoose": "^8.14.0",
     "nodemailer": "^9.0.5",
     "redis": "^5.0.0",
+    "resend": "^6.19.0",
     "socket.io": "^4.8.3",
     "validator": "^13.15.0"
   },
