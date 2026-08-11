@@ -19,7 +19,13 @@ const sendOtp = async (req, res) => {
 
         // Store OTP in Redis with a 60-second TTL
         try {
-            await redisClient.setex(`otp:${emailId}`, 60, otp);
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Redis operation timed out")), 5000)
+            );
+            await Promise.race([
+                redisClient.setex(`otp:${emailId}`, 60, otp),
+                timeoutPromise
+            ]);
         } catch (redisErr) {
             console.error("Redis Error:", redisErr);
             return res.status(500).json({ message: "Database connection failed", error: redisErr.message });

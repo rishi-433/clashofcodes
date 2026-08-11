@@ -4,8 +4,7 @@ const Redis = require('ioredis');
 const redisClient = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
     maxRetriesPerRequest: null,
     commandTimeout: 5000,
-    family: 4,
-    enableOfflineQueue: false
+    family: 4
 });
 
 redisClient.on('connect', () => {
