@@ -18,15 +18,25 @@ const sendOtp = async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Store OTP in Redis with a 60-second TTL
-        await redisClient.setex(`otp:${emailId}`, 60, otp);
+        try {
+            await redisClient.setex(`otp:${emailId}`, 60, otp);
+        } catch (redisErr) {
+            console.error("Redis Error:", redisErr);
+            return res.status(500).json({ message: "Database connection failed", error: redisErr.message });
+        }
 
         // Send the OTP via email
-        await sendOtpEmail(emailId, otp);
+        try {
+            await sendOtpEmail(emailId, otp);
+        } catch (emailErr) {
+            console.error("Email Error:", emailErr);
+            return res.status(500).json({ message: "Failed to send email", error: emailErr.message });
+        }
 
         res.status(200).json({ message: "OTP sent successfully" });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to send OTP", error: err.message });
+        console.error("Unexpected Error:", err);
+        res.status(500).json({ message: "Unexpected server error", error: err.message });
     }
 };
 
