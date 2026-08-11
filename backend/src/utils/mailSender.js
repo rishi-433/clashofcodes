@@ -15,9 +15,7 @@ const sendOtpEmail = async (email, otp) => {
 
         const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', payload, {
             headers: {
-                'Content-Type': 'application/json',
-                'Origin': 'http://localhost:3000',
-                'User-Agent': 'Mozilla/5.0'
+                'Content-Type': 'application/json'
             }
         });
 
