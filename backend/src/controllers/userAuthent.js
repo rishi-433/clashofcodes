@@ -18,7 +18,7 @@ const sendOtp = async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Store OTP in Redis with a 60-second TTL
-        await redisClient.setEx(`otp:${emailId}`, 60, otp);
+        await redisClient.setex(`otp:${emailId}`, 60, otp);
 
         // Send the OTP via email
         await sendOtpEmail(emailId, otp);
@@ -133,7 +133,7 @@ const logout = async(req,res)=>{
 
 
         await redisClient.set(`token:${token}`,'Blocked');
-        await redisClient.expireAt(`token:${token}`,payload.exp);
+        await redisClient.expireat(`token:${token}`,payload.exp);
     //    Token add kar dung Redis ke blockList
     //    Cookies ko clear kar dena.....
 
