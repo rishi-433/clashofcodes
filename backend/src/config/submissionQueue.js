@@ -144,4 +144,12 @@ const worker = new Worker('submissionQueue', async (job) => {
     }
 }, { connection: redisClient });
 
+worker.on('error', err => {
+    console.error('BullMQ Worker Error:', err);
+});
+
+submissionQueue.on('error', err => {
+    console.error('BullMQ Queue Error:', err);
+});
+
 module.exports = { submissionQueue };
