@@ -69,7 +69,7 @@ const register = async (req,res)=>{
         role:user.role,
     }
     
-     res.cookie('token',token,{maxAge: 60*60*1000});
+     res.cookie('token',token,{maxAge: 60*60*1000, sameSite: 'none', secure: true});
      res.status(201).json({
         user:reply,
         message:"Loggin Successfully"
@@ -109,7 +109,7 @@ const login = async (req,res)=>{
         }
 
         const token =  jwt.sign({_id:user._id , emailId:emailId, role:user.role},process.env.JWT_KEY,{expiresIn: 60*60});
-        res.cookie('token',token,{maxAge: 60*60*1000});
+        res.cookie('token',token,{maxAge: 60*60*1000, sameSite: 'none', secure: true});
         res.status(201).json({
             user:reply,
             message:"Loggin Successfully"
@@ -135,7 +135,7 @@ const logout = async(req,res)=>{
     //    Token add kar dung Redis ke blockList
     //    Cookies ko clear kar dena.....
 
-    res.cookie("token",null,{expires: new Date(Date.now())});
+    res.cookie("token",null,{expires: new Date(Date.now()), sameSite: 'none', secure: true});
     res.send("Logged Out Succesfully");
 
     }
@@ -158,7 +158,7 @@ const adminRegister = async(req,res)=>{
     
      const user =  await User.create(req.body);
      const token =  jwt.sign({_id:user._id , emailId:emailId, role:user.role},process.env.JWT_KEY,{expiresIn: 60*60});
-     res.cookie('token',token,{maxAge: 60*60*1000});
+     res.cookie('token',token,{maxAge: 60*60*1000, sameSite: 'none', secure: true});
      res.status(201).send("User Registered Successfully");
     }
     catch(err){
