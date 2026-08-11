@@ -14,13 +14,15 @@ const initSocket = (server) => {
 
     io.use((socket, next) => {
         try {
-            // Read cookie string
-            const cookieStr = socket.handshake.headers.cookie;
-            if (!cookieStr) return next(new Error("Authentication error"));
-
-            // Parse cookies
-            const cookies = Object.fromEntries(cookieStr.split('; ').map(c => c.split('=')));
-            const token = cookies.token;
+            // Read token from auth payload or cookies
+            let token = socket.handshake.auth?.token;
+            if (!token) {
+                const cookieStr = socket.handshake.headers.cookie;
+                if (cookieStr) {
+                    const cookies = Object.fromEntries(cookieStr.split('; ').map(c => c.split('=')));
+                    token = cookies.token;
+                }
+            }
 
             if (!token) return next(new Error("Authentication error"));
 

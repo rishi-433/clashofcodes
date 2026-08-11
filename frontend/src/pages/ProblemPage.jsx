@@ -37,7 +37,8 @@ const ProblemPage = () => {
 
   useEffect(() => {
     const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000', {
-        withCredentials: true
+        withCredentials: true,
+        auth: { token: localStorage.getItem('token') }
     });
     
     socket.on('submissionResult', (data) => {
