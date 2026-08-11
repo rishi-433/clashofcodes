@@ -23,7 +23,7 @@ function Leaderboard() {
         };
         fetchLeaderboard();
         
-        const socket = io('https://clashofcodes-backend-6fwg.onrender.com', {
+        const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000', {
             withCredentials: true
         });
         
